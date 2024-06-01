@@ -142,12 +142,12 @@ But first I've installed MailHog in Laragon.
 
 Use these references:
 
-MailHog github for download: [text](https://github.com/mailhog/MailHog)
-Tutorial on how to install mailhog in laragon: [text](https://pen-y-fan.github.io/2023/01/04/how-to-set-up-laragon-on-a-new-windows-computer-part-5/)
+MailHog github for download: [https://github.com/mailhog/MailHog](https://github.com/mailhog/MailHog)
+Tutorial on how to install mailhog in laragon: [https://pen-y-fan.github.io/2023/01/04/how-to-set-up-laragon-on-a-new-windows-computer-part-5/](https://pen-y-fan.github.io/2023/01/04/how-to-set-up-laragon-on-a-new-windows-computer-part-5/)
 
 Otherwise, you can read this guide to setup Symfony Mailer as you prefer:
 
-[text](https://symfony.com/doc/current/mailer.html)
+[https://symfony.com/doc/current/mailer.html](https://symfony.com/doc/current/mailer.html)
 
 So, in case you'll use MailHog leave the fields *MAIL_PROTOCOL*, *MAIL_HOST*, *MAIL_PORT*, *MAIL_USERNAME* and *MAIL_PASSWORD* as they are.
 
