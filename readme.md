@@ -143,6 +143,7 @@ But first I've installed MailHog in Laragon.
 Use these references:
 
 MailHog github for download: [https://github.com/mailhog/MailHog](https://github.com/mailhog/MailHog)
+
 Tutorial on how to install mailhog in laragon: [https://pen-y-fan.github.io/2023/01/04/how-to-set-up-laragon-on-a-new-windows-computer-part-5/](https://pen-y-fan.github.io/2023/01/04/how-to-set-up-laragon-on-a-new-windows-computer-part-5/)
 
 Otherwise, you can read this guide to setup Symfony Mailer as you prefer:
