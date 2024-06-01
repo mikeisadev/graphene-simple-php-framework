@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+    @apply h-full;
+}
+
+header {
+    @apply w-full bg-white p-4;
+}
+
+header ul {
+    @apply flex gap-[10px];
+}
+
+.app {
+    @apply bg-slate-200;
+}
+
+.main-content {
+    @apply py-5 px-4 vsm:px-0;
+}
+
+.title {
+    @apply text-[28px] mb-2 vsm:text-[22px];
+}
+
+.md-title {
+    @apply text-[20px] mb-2 font-normal;
+}
+
+.flex-container {
+    @apply flex justify-center flex-col items-center;
+}
+
+.rounded-box {
+    @apply rounded-md shadow-md p-4;
+}
+
+.tab-wrap {
+    @apply px-10 md:p-0 md:mt-5;
+}
+
+/* Nav bar */
+a, button, input[type="button"], input[type="submit"] {
+    @apply transition-colors cursor-pointer;
+}
+
+nav ul a:hover, a.active {
+    @apply text-sky-500;
+}
+
+/* button */
+.btn-primary {
+    @apply text-white p-2 bg-sky-600 rounded-md;
+}
+
+/* box style */
+.white-box {
+    @apply p-4 rounded-md shadow-md bg-white;
+}
+
+/* form style */
+.form-wrap {
+    @apply flex flex-col gap-[18px] vsm:w-full;
+}
+
+.field-row {
+    @apply block w-full;
+}
+
+input:not(input[type="checkbox"], input[type="radio"]) {
+    @apply w-full;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    @apply border border-slate-600 rounded-md p-2;
+}
+
+.val-err {
+    @apply text-sm text-red-500 my-1;
+}

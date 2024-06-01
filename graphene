@@ -1,0 +1,47 @@
+<?php
+
+use App\Config;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Migrations\DependencyFactory;
+use Symfony\Component\Console\Application;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+
+// Get our container with all the dependencies injected.
+$container = require_once __DIR__ . '/bootstrap.php';
+
+// Config helper class.
+$Config = $container->get(Config::class);
+
+// Get entity manager configured from the container.
+$EntityManager = $container->get(EntityManagerInterface::class);
+
+// Dependency factory.
+$DepFactory = DependencyFactory::fromEntityManager(
+    new PhpFile(CONF_PATH . '/migrations.php'),
+    new ExistingEntityManager($EntityManager)
+);
+
+// Get custom commands.
+$Migrations = require_once CONF_PATH . '/commands/migrations.php';
+$Custom = require_once CONF_PATH . '/commands/custom.php';
+
+// Setup the CLI.
+$CLI = new Application(
+    $Config->get('app_name'),
+    $Config->get('app_version')
+);
+
+$CLI->setCatchExceptions(true);
+
+ConsoleRunner::addCommands(
+    $CLI,
+    new SingleManagerProvider($EntityManager)
+);
+
+$CLI->addCommands( $Migrations($DepFactory) );
+$CLI->addCommands( $Custom($DepFactory, $Config) );
+
+$CLI->run();

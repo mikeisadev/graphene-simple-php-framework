@@ -1,0 +1,26 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<div class="flex-container">
+    <h1 class="title">Login</h1>
+    <form method="POST" class="form-wrap w-[380px] white-box">
+        <div class="field-row">
+            <input type="text" name="login" placeholder="Enter your username or email..." value="{{ old.login }}" />
+            {% for err in errors.login %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="field-row">
+            <input type="password" name="password" placeholder="Enter your password..." />
+            {% for err in errors.password %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <input class="btn-primary" type="submit" name="login-user" value="Login now" />
+        
+        {{ csrf.fields | raw }}
+    </form>
+</div>
+{% endblock %}

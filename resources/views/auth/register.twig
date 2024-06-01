@@ -1,0 +1,55 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<div class="flex-container">
+    <h1 class="title">Register</h1>
+    <form method="POST" class="form-wrap w-[380px] white-box">
+    
+        <div class="field-row">
+            <input type="text" name="fname" placeholder="Enter your first name..." value="{{old.fname}}" />
+            {% for err in errors.fname %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="field-row">
+            <input type="text" name="lname" placeholder="Enter your last name..." value="{{old.lname}}" />
+            {% for err in errors.lname %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="field-row">
+            <input type="text" name="username" placeholder="Enter your username..." value="{{old.username}}" />
+            {% for err in errors.username %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="field-row">
+            <input type="email" name="email" placeholder="Enter your email..." value="{{old.email}}" />
+            {% for err in errors.email %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="field-row">
+            <input type="password" name="password" placeholder="Enter your password..." />
+            {% for err in errors.password %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="field-row">
+            <input type="password" name="rpassword" placeholder="Repeat your password..." />
+            {% for err in errors.rpassword %}
+                <p class="val-err">{{err}}</p>
+            {% endfor %}
+        </div>
+
+        <input class="btn-primary" type="submit" name="register-user" value="Register" />
+
+        {{ csrf.fields | raw }}
+    </form>
+</div>
+{% endblock %}

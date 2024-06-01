@@ -1,0 +1,32 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<div class="flex justify-between w-[980px] m-auto items-center px-4 lg:w-full">
+    <h1 class="title">My Account</h1>
+    <form method="POST" action="/logout">
+        <input class="text-red-500" type="submit" value="Logout" />
+        {{ csrf.fields | raw }}
+    </form>
+</div>
+
+<div class="flex bg-white p-4 shadow-md rounded-md w-[980px] m-auto lg:w-full md:flex-col">
+    <div class="w-[200px] md:w-full">
+        <nav>
+            <ul class="flex flex-col gap-[10px]">
+                <li><a href="/account" class="{{ route == 'dashboard' ? 'active' : '' }}">Dashboard</a></li>
+                <li><a href="/account/edit" class="{{ route == 'edit_account' ? 'active' : '' }}">Edit</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="w-full">
+        <div class="tab-wrap">
+            {% if route == 'dashboard' %}
+                <h4 class="md-title">Dashboard</h4>
+                <p>Hello {{ user.fname }} {{ user.lname }}, welcome back to your account!</p>
+            {% endif %}
+
+            {% block account %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

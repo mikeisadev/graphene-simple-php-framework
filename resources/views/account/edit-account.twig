@@ -1,0 +1,67 @@
+{% extends 'account/account.twig' %}
+
+{% block account %}
+<div class="md-title">Edit account</div>
+
+<form method="POST" class="form-wrap mb-5">
+    <div class="field-row">
+        <input type="text" name="fname" placeholder="Enter your first name..." value="{{user.fname}}" />
+        {% for err in errors.fname %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <div class="field-row">
+        <input type="text" name="lname" placeholder="Enter your last name..." value="{{user.lname}}" />
+        {% for err in errors.lname %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <div class="field-row">
+        <input type="text" name="username" placeholder="Enter your username..." value="{{user.username}}" />
+        {% for err in errors.username %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <div class="field-row">
+        <input type="email" name="email" placeholder="Enter your email..." value="{{user.email}}" />
+        {% for err in errors.email %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <input class="btn-primary" type="submit" name="update-user" value="Update your account" />
+
+    {{ csrf.fields | raw }}
+</form>
+
+<div class="md-title">Update password</div>
+<form method="POST" class="form-wrap">
+    <div class="field-row">
+        <input type="password" name="oldpassword" placeholder="Enter your old password..." />
+        {% for err in errors.oldpassword %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <div class="field-row">
+        <input type="password" name="npassword" placeholder="Your new password..." />
+        {% for err in errors.npassword %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <div class="field-row">
+        <input type="password" name="nrpassword" placeholder="Repeat your new password..." />
+        {% for err in errors.nrpassword %}
+            <p class="val-err">{{err}}</p>
+        {% endfor %}
+    </div>
+
+    <input class="btn-primary" type="submit" name="update-password" value="Update password" />
+
+    {{ csrf.fields | raw }}
+</form>
+{% endblock %}
