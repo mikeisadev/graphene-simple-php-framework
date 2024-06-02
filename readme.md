@@ -10,6 +10,7 @@ To make this framework i took a lot of inspiration from other projects and youtu
 
 In the list below there are all the features that this framework provides:
 - MVC architecture
+- PHPUnit framework for testing
 - PHP dotenv by vlucas for environmental variables
 - PHP-DI container (DEPENDENCY INJECTION CONTAINER)
 - Slim mini framework implementation:
@@ -63,6 +64,29 @@ I've built this framework on Laragon version 6.0.
 To install and work with this framework you also need to install MailHog on Laragon.
 
 I used MailHog for Symfony Mailer.
+
+# Base dependencies of this framework
+Below there's a list of the base dependencies that build up this framework:
+- [PHP-DI](https://php-di.org/)
+- [Slim](https://www.slimframework.com/):
+    - [Slim Twig](https://www.slimframework.com/docs/v3/features/templates.html)
+- [Twig](https://twig.symfony.com/)
+- [PHPUnit](https://phpunit.de/index.html)
+- [Doctrine](https://www.doctrine-project.org/index.html):
+    - [ORM](https://www.doctrine-project.org/projects/orm.html)
+    - [Migrations](https://www.doctrine-project.org/projects/migrations.html)
+    - [DBAL](https://www.doctrine-project.org/projects/doctrine-dbal/en/4.0/index.html):
+        - [Query builder](https://www.doctrine-project.org/projects/doctrine-dbal/en/4.0/reference/query-builder.html)
+- [Valitron](https://github.com/vlucas/valitron)
+- [Dotenv](https://github.com/vlucas/phpdotenv)
+- [Symfony](https://symfony.com/):
+    - [Command](https://symfony.com/doc/current/console.html)
+    - [Cache](https://symfony.com/doc/current/components/cache.html)
+    - [Mailer](https://symfony.com/doc/current/mailer.html)
+    - [Webpack Encore](https://symfony.com/doc/current/frontend/encore/installation.html)
+    - [Twig bridge](https://symfony.com/components/Twig%20Bridge)
+- [League Flysystem Filesystem](https://flysystem.thephpleague.com/docs/)
+- [Fzaninotto Faker](https://github.com/fzaninotto/Faker)
 
 # Getting started
 
@@ -277,7 +301,7 @@ In the views folder you can add twig templates to build the frontend of your app
 
 Consult [TWIG documentation](https://twig.symfony.com/doc/) to learn about this templating engine.
 
-> Note that TailwindCSS comes as default CSS library to build the frontend of your application.
+*Note that TailwindCSS comes as default CSS library to build the frontend of your application.*
 
 To add CSS and JS files to a TWIG template file you can use this for CSS:
 
@@ -405,3 +429,8 @@ To seed your database tables with seed classes you've created inside "database/s
 ```
 php graphene app:seed
 ```
+
+# Slim Middlewares
+Middlewares and routes are handled by Slim.
+
+So you have to rely on Slim documentation for this.
