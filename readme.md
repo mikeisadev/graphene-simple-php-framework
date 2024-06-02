@@ -218,7 +218,112 @@ Below there is a list of the most important folders:
 In this folder I'll put an entire Dockerfile for a container to run this framework.
 
 ## /database folder
+In the database folder you'll find "*migrations*" and "*seeders*" folders.
+
+In the "*migrations*" folder you can add classes to create database tables and their columns.
+
+You can generate a migration with the following command:
+
+```
+php graphene app:generate:migration <table_name>
+```
+
+You also have a folder called "*seeders*" where you can create classes to populate database tables with fake custom data.
+
+To create a seeder class you can duplicate the already present *Users.php* class for your own database table.
+
+Here you can instantiate the entity class to add your data.
+
+This framework comes with a library to generate fake data (fzaninotto/faker).
+
+Read the documentation of this library for more information [fzaninotto/faker](https://github.com/fzaninotto/Faker).
 
 ## /resources folder
+Inside this folder you'll find frontend resources.
+
+You can manage and add stylesheets inside *CSS* folder and javascript files inside the *JS* folder.
+
+Note that you can manage entry javascript files inside *webpack.config.js* file in the root folder of the framework.
+
+Scroll at the line 22 (inside "*webpack.config.js*" file) and you can concatenate other javascript files adding:
+
+- a name as first argument (you'll use this name inside the twig file to add the javascript file.)
+- a path inside the resources folder for the targeted javascript file
+
+```javascript
+    .addEntry("app", "./resources/js/app.js")
+    // Concatenate from here to add a javascript entry file
+
+    // .addEntry("fileName", "./resources/js/newFile.js")
+
+    // .addEntry("fileName", "path_to_resource")
+```
+
+Note that if you import a css file inside a javascript file, that css file will get the name of the entry that you set up inside "*webpack.config.js*".
+
+If you run:
+
+```
+npm run build-dev
+```
+
+You are going to bundle up all your javascript and css files with webpack inside the "*public/build*" folder.
+
+In the "*public/build*" folder you'll find the "*entrypoints.json*" file where all the added files inside "*webpack.config.js*" are mapped.
+
+This file is really important when you are going to add the bundled files inside your twig files to add css and js to your application.
+
+In the views folder you can add twig templates to build the frontend of your application.
+
+Consult [TWIG documentation](https://twig.symfony.com/doc/) to learn about this templating engine.
+
+> Note that TailwindCSS comes as default CSS library to build the frontend of your application.
+
+To add CSS and JS files to a TWIG template file you can use this for CSS:
+
+```
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('fileName') }}
+    {% endblock %}
+```
+
+As the parameter for the function ```encore_entry_link_tags('fileName')``` you must use the file name that you added inside "*webpack.config.js*" file when you were adding entries.
+
+Instead for JS files you'll use this block of code
+
+```
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+```
+
+## /routes folder
+In this folder you have a file to manage the routes of your application called "*web.php*".
+
+Here you have access to the variable "*$app*" from the anonymous function from which you can add all your routes using Slim.
+
+Example, adding a get route:
+
+```php
+    $app->get('/your-page', [ControllerClass::class, 'controllerClassMethod']);
+```
+
+As you can see, you can resolve the namespace of your controller classes and get the method that you want to use.
+
+From here you can add middlewares or names to your routes.
+
+Or you can group your routes as I've done for the starting application present with this framework.
+
+```php
+    $app->group('', function (RouteCollectorProxy $group) {
+        $group->get('/login', [AuthController::class, 'loginView'])->setName('login');
+        $group->get('/register', [AuthController::class, 'registerView'])->setName('register');
+
+        $group->post('/login', [AuthController::class, 'loginUser']);
+        $group->post('/register', [AuthController::class, 'registerUser']);
+    })->add(GuestMiddleware::class);
+```
+
+Go deeper with routing reading the [documentation on Slim framework website](https://www.slimframework.com/docs/v4/objects/routing.html).
 
 # Prebuilt CLI commands.
