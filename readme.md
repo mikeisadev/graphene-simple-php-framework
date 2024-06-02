@@ -251,12 +251,12 @@ Scroll at the line 22 (inside "*webpack.config.js*" file) and you can concatenat
 - a path inside the resources folder for the targeted javascript file
 
 ```javascript
-    .addEntry("app", "./resources/js/app.js")
-    // Concatenate from here to add a javascript entry file
+.addEntry("app", "./resources/js/app.js")
+// Concatenate from here to add a javascript entry file
 
-    // .addEntry("fileName", "./resources/js/newFile.js")
+// .addEntry("fileName", "./resources/js/newFile.js")
 
-    // .addEntry("fileName", "path_to_resource")
+// .addEntry("fileName", "path_to_resource")
 ```
 
 Note that if you import a css file inside a javascript file, that css file will get the name of the entry that you set up inside "*webpack.config.js*".
@@ -282,9 +282,9 @@ Consult [TWIG documentation](https://twig.symfony.com/doc/) to learn about this 
 To add CSS and JS files to a TWIG template file you can use this for CSS:
 
 ```
-    {% block stylesheets %}
-        {{ encore_entry_link_tags('fileName') }}
-    {% endblock %}
+{% block stylesheets %}
+    {{ encore_entry_link_tags('fileName') }}
+{% endblock %}
 ```
 
 As the parameter for the function ```encore_entry_link_tags('fileName')``` you must use the file name that you added inside "*webpack.config.js*" file when you were adding entries.
@@ -292,9 +292,9 @@ As the parameter for the function ```encore_entry_link_tags('fileName')``` you m
 Instead for JS files you'll use this block of code
 
 ```
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-    {% endblock %}
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+{% endblock %}
 ```
 
 ## /routes folder
@@ -305,7 +305,7 @@ Here you have access to the variable "*$app*" from the anonymous function from w
 Example, adding a get route:
 
 ```php
-    $app->get('/your-page', [ControllerClass::class, 'controllerClassMethod']);
+$app->get('/your-page', [ControllerClass::class, 'controllerClassMethod']);
 ```
 
 As you can see, you can resolve the namespace of your controller classes and get the method that you want to use.
@@ -315,15 +315,93 @@ From here you can add middlewares or names to your routes.
 Or you can group your routes as I've done for the starting application present with this framework.
 
 ```php
-    $app->group('', function (RouteCollectorProxy $group) {
-        $group->get('/login', [AuthController::class, 'loginView'])->setName('login');
-        $group->get('/register', [AuthController::class, 'registerView'])->setName('register');
+$app->group('', function (RouteCollectorProxy $group) {
+    $group->get('/login', [AuthController::class, 'loginView'])->setName('login');
+    $group->get('/register', [AuthController::class, 'registerView'])->setName('register');
 
-        $group->post('/login', [AuthController::class, 'loginUser']);
-        $group->post('/register', [AuthController::class, 'registerUser']);
-    })->add(GuestMiddleware::class);
+    $group->post('/login', [AuthController::class, 'loginUser']);
+    $group->post('/register', [AuthController::class, 'registerUser']);
+})->add(GuestMiddleware::class);
 ```
 
 Go deeper with routing reading the [documentation on Slim framework website](https://www.slimframework.com/docs/v4/objects/routing.html).
 
-# Prebuilt CLI commands.
+# CLI commands
+
+## How I've configured CLI commands
+In the root folder of this framework I've added a file called ```graphene``` where I've set up the base to start using CLI commands.
+
+If you remember, inside "config/commands/custom.php" file I've added custom CLI commands using Command Symfony package.
+
+## Explore the commands on this framework
+If you are using Visual Studio Code or other IDEs, you can run the following command to get the list of all available commands:
+
+```
+php graphene
+```
+
+## Non-prebuilt CLI commands.
+Doctrine gives you a lot of CLI commands that you can see running ```php graphene```.
+
+For example you use the command below to run your migrations:
+
+```
+php graphene migrations:migrate
+```
+
+## Prebuilt CLI commands
+In this framework I've added some CLI commands thanks to Symfony Command package.
+
+For example, at the begging of this guide we've seen this command to generate the app key inside the .env file:
+
+```
+php graphene app:gen_key
+```
+
+Below I describe some commands I've added on this framework.
+
+### app:generate:controller
+To add a controller class inside "app/Controllers", use the command below. Be sure to add a controller name instead of "<controller_name>".
+
+```
+php graphene app:generate:controller <controller_name>
+```
+### app:generate:dto
+If you want to add a PHP data object class use the command below. A class to transfer data will be added inside "app/DataObjects".
+```
+php graphene app:generate:dto <dto_name>
+```
+
+### app:generate:entity
+To generate an entity class for Doctrine ORM inside "app/Entities" folder, you can use the following command:
+```
+php graphene app:generate:entity <entity_name>
+```
+
+### app:generate:interface
+If you want to generate an interface inside "app/Interfaces" use the following command:
+```
+php graphene app:generate:interface <interface_name>
+```
+
+### app:generate:middleware
+To generate a middleware class inside "app/Middlewares" use:
+```
+php graphene app:generate:interface <middleware_name>
+```
+
+### app:generate:migration
+Do you need to generate a migration class to structure the tables of your database?
+
+```
+php graphene app:generate:migration <table_name>
+```
+
+After running this command you'll find a new class inside "database/migrations".
+
+### app:seed
+To seed your database tables with seed classes you've created inside "database/seeders", use the following command:
+
+```
+php graphene app:seed
+```
