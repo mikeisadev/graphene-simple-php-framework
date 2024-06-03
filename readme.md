@@ -785,7 +785,9 @@ $app->group('', function (RouteCollectorProxy $group) {
 
 **NOTE: I've already set up routes with controllers and middlewares as a generic example.**
 
-## The middleware classes
+## The middleware classes and how to use them
+> pro tip: add a middleware with ```php graphene app:generate:middleware <middleware_name>```
+
 If you go in any middleware inside "app/Middlewares" you'll see that every class implements *MiddlewareInterface*.
 
 Then, they have a public constructor where I inject the needed dependencies (that are called by Slim container interface).
@@ -845,7 +847,13 @@ final class ExampleMiddleware implements MiddlewareInterface {
 ```
 Inside the constructor I inject all the dependencies.
 
-Next, inside the process method I define the logic of the middleware.
+Next, inside the *process* method I define the logic of the middleware.
+
+Note that the *process* method implements the PSR-7 request object ```(Request $request)```, the PSR-15 request handler object ```(Handler $handler)``` and it returns the ```Response``` object (these are aliases that I've added to shorten the name of the interfaces, check the full namespaces above for a full reference).
+
+You use:
+- ```Request $request``` to use all the methods for requests to get info about them
+- ```Handler $handler``` to handle the request (```$handler->handle($request)```) to return a response as hinted in the method
 
 In the case of this example we check if the user is not logged in:
 ```php
@@ -861,11 +869,183 @@ If that condition is false, we pass the response to the next middleware or to th
 return $handler->handle($request);
 ```
 
-Read [Slim documentation on middlewares](https://www.slimframework.com/docs/v4/concepts/middleware.html) to learn more
+You can also use middlewares to persist data between requests adding data:
+- to slim global environment
+- to sessions
+- to the request object itself
+
+This is the *AuthMiddleware* that you can find inside "app/middlewares":
+
+```php
+namespace App\Middlewares;
+
+use Slim\Views\Twig;
+use App\Interfaces\AuthInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
+
+final class AuthMiddleware implements MiddlewareInterface {
+    
+    public function __construct(
+        private readonly AuthInterface $auth,
+        private readonly ResponseFactoryInterface $response,
+        private readonly Twig $twig,
+    ) {}
+
+    public function process(Request $request, Handler $handler): Response {
+
+        // Check if user is logged in.
+        if ($this->auth->isLoggedIn()) {
+
+            // Get user object
+            $user = $this->auth->user();
+
+            // Add user data to global twig environment
+            $this->twig->getEnvironment()->addGlobal(
+                'user', 
+                [
+                    'fname'     => $user->getFirstName(),
+                    'lname'     => $user->getLastName(),
+                    'id'        => $user->getId(),
+                    'email'     => $user->getEmail(),
+                    'username'  => $user->getUsername()
+                ]
+            );
+
+            // Add user object inside the $request object to persist it between requests (withAttribute method)
+            // Return the response handling the request
+            return $handler->handle(
+                $request->withAttribute('user', $user)
+            );
+
+        }
+
+        // User not logged in? Return the user to the login page.
+        return $this->response->createResponse(302)->withHeader('Location', '/login');
+    }
+
+}
+```
+
+1) I've injected dependencies inside the constructor:
+    - *AuthInterface* to handle all authentication processes
+    - *ResponseFactoryInterface* to generate a different response (ex. redirect)
+    - *Twig* to get the Twig templating engine to add variables that you can use inside templates
+2) Inside the "process" method I've defined the logic.
+    - to check if the user is logged in with ``` if ($this->auth->isLoggedIn()) { ...code... } ```
+    - inside this if statement I get the user object and I add user data inside the twig global environment
+    - when I return the response object handling the request, I add an attribute to the request to persist the user object between requests, so I can use the user object inside the controller (``` return $handle->handle( $request->withAttribute('user', $user) ) ```)
+    - outside the if statement, if the user is NOT logged in, I create another response with the ```ResponseFactoryInterface``` redirecting the user to the login page with a status code of 302
+
+Feel free to analyze all the present middlewares to better understand how they work.
+
+Take your time, it's normal if you don't get it at the first time.
+
+Read [Slim documentation on middlewares](https://www.slimframework.com/docs/v4/concepts/middleware.html) to learn more about this topic.
 
 # Adding Controllers
+> pro tip: add a controller with ```php graphene app:generate:controller <controller_name>```
+
+You add controllers to define the methods used for each route and their logic resulting in a specific behavior.
+
+Go inside "app/Controllers" to find prebuilt controllers and analyze them.
+
+For example, inside the AuthController:
+- I've injected all the dependencies inside the constructor
+- I've added a set of public methods to handle the requests from each defined route inside "routes/web.php"
+
+I've done the same thing for all the other controllers.
+
+For each method:
+- there are ```Request $request``` and ```Response $response``` objects as parameters to handle requests and responses and to use methods to retreieve data from them
+- the returning data type is ```Response```
+
+This is the base structure of the controllers' methods:
+```php
+public function controllerMethod(Request $request, Response $response): Response { 
+    return $response;
+}
+```
+
+Slim gives you the PSR-7 implementation of request and responses with their corresponding objects.
+
+You can write the body of responses like this:
+```php
+public function controllerMethod(Request $request, Response $response): Response { 
+    $response->getBody()->write('<h1>Hello world</h1>');
+
+    return $response;
+}
+```
+Doing this, you are going to add content to the returned body to the client.
+
+You can get the data from the client request calling the ```getParsedBody()``` method from the ```$request``` object:
+```php
+public function controllerMethod(Request $request, Response $response): Response { 
+    $data = $request->getParsedBody();
+
+    // Do validation or other procedures that you have to do.
+
+    $username = $data['username'];
+
+    return $response;
+}
+```
+The ```getParsedBody()``` method will return an array with all the submitted data from the client.
+
+You can access that data knowing its keys.
+
+Once you've set up your controller class and methods, you can set up your routes.
+
+Inside "routes/web.php", decide the HTTP method calling the corresponding method name. The first argument will be the url path and the second argument will be an array where:
+- the first key will be the fully qualified class name of the controller
+- the second key will be the method name of the controller
+
+```php
+$app->get('/path', [Controller::class, 'handleGet']);
+$app->post('/path', [Controller::class, 'handlePost']);
+```
+
+## Rendering Twig templates
+You can return a twig template injecting Twig dependency inside the constructor of the controller class.
+
+Then you can access that dependency to render the template you want.
+
+As an example, I took the code I've written to return the login view:
+```php
+public function loginView(Request $request, Response $response): Response {
+        
+    return $this->twig->render(
+        $response,
+        'auth/login.twig'
+    );
+}
+```
+Simply return the twig property calling the render method.
+
+Inside this method put the response as first argument, as second argument insert the view that you want to display.
+
+Now, if you go inside "routes/web.php" you'll see that I've added this method to the GET route for the "/login" path:
+
+```php
+$group->get('/login', [AuthController::class, 'loginView'])->setName('login');
+```
+
+This is a linear exaple to return views for specific GET routes.
+
+Explore request and response object methods in Slim documentation:
+- [Request](https://www.slimframework.com/docs/v4/objects/request.html)
+- [Response](https://www.slimframework.com/docs/v4/objects/response.html)
+
+In general, following the documentation of Slim will allow you to better understand the usage of controllers, same thing for routes.
 
 # Adding Models or Entities
+> pro tip: add an entity with ```php graphene app:generate:entity <entity_name>```
+
+The Doctrine ORM package allows you to add entities (or models) to map the tables of your database.
 
 # Handling Storage
 **FEATURE AVAILABLE, DOCUMENTATION IS COMING**
