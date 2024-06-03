@@ -54,6 +54,20 @@ Missing features that I want to develop:
 - Route strategies to directly access to entities or models inside the controller class method
 - Web sockets with node js for real time applications
 
+Consider that this documentation is not 100% accurate and complete.
+
+I've written this in a small period of time distributing the work in 5 days.
+
+I'm sorry for this. 
+
+I'll take care of the documentation in the long run.
+
+For now you can study this documentation and follow the code I've written to ship a pre-built very simple app along with this framework.
+
+So, yes, you must consider the option to also study the code I've written inside the app folder, especially for edge cases like validation and service classes (inside app/services folder).
+
+Beyond this, you must consider the documentation of the dependencies that I've used to build this framework. You'll find the list of the dependencies used with their documentation shortly.
+
 # Technical requirements
 - PHP 8.1.10 or greater
 - Apache 2.4.54
@@ -528,7 +542,7 @@ If you are using Visual Studio Code or other IDEs, you can run the following com
 php graphene
 ```
 
-## Non-prebuilt CLI commands.
+## Base CLI commands.
 Doctrine gives you a lot of CLI commands that you can see running ```php graphene```.
 
 For example you use the command below to run your migrations:
@@ -772,7 +786,7 @@ $app->group('', function (RouteCollectorProxy $group) {
 **NOTE: I've already set up routes with controllers and middlewares as a generic example.**
 
 ## The middleware classes
-If you go in an any middleware inside "app/Middlewares" you'll see that every class implements *MiddlewareInterface*.
+If you go in any middleware inside "app/Middlewares" you'll see that every class implements *MiddlewareInterface*.
 
 Then, they have a public constructor where I inject the needed dependencies (that are called by Slim container interface).
 
@@ -780,11 +794,74 @@ In the constructor you will inject all the dependencies that you need.
 
 Do not delete the default dependency ```ResponseFactoryInterface $responseFactory```, this is used to manipulate the response inside the middleware.
 
-We also have a public method called "process" where I handle the request and the response.
+We also have a public method called "process" where I handle the request and the response. Here you define the behavior of the middleware.
 
-Inside the "process" method you define the behavior of the middleware.
+Below, I bring an example of middleware:
 
-So you have to rely on Slim documentation for this.
+```php
+use App\Interfaces\AuthInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as Handler;
+
+final class ExampleMiddleware implements MiddlewareInterface {
+    
+    /**
+     * Inject your dependencies here.
+     */
+    public function __construct(
+        private readonly ResponseFactoryInterface $responseFactory,
+        private readonly AuthInterface $auth
+    ) {}
+
+    /**
+     * Handle the behavior of your middleware here. 
+     */
+    public function process(Request $request, Handler $handler): Response {
+
+        /**
+         * Do you need to do some type of calculation?
+         * 
+         * For example, if the user is not logged in redirect to the login page.
+         */
+        if (!$this->auth->isLoggedIn()) {
+            $this->responseFactory->createResponse(302)->withHeader('Location', '/login');
+        }
+
+        /**
+         * Everything is okay, handle the request.
+         * 
+         * Handling the request this way, you return a response.
+         * 
+         * Doing this, the you pass the control to the next middleware arriving to the method of the controller.
+         */
+        return $handler->handle($request);
+
+    }
+
+}
+```
+Inside the constructor I inject all the dependencies.
+
+Next, inside the process method I define the logic of the middleware.
+
+In the case of this example we check if the user is not logged in:
+```php
+if (!$this->auth->isLoggedIn()) {
+    $this->responseFactory->createResponse(302)->withHeader('Location', '/login');
+}
+```
+
+If that condition is true we redirect the user to the login page using the ``` ResponseFactoryInterface ``` dependency.
+
+If that condition is false, we pass the response to the next middleware or to the method of the controller with this piece of code:
+```php
+return $handler->handle($request);
+```
+
+Read [Slim documentation on middlewares](https://www.slimframework.com/docs/v4/concepts/middleware.html) to learn more
 
 # Adding Controllers
 
