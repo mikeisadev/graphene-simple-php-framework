@@ -14,6 +14,15 @@ return [
     'app_environment'   => $_ENV['APP_ENVIRONMENT'] ?? 'dev',
 
     /**
+     * Slim
+     */
+    'slim' => [
+        'display_error_details' => (bool) $_ENV['SLIM_DISPLAY_ERROR_DETAILS'],
+        'log_errors'            => (bool) $_ENV['SLIM_LOG_ERRORS'],
+        'log_error_details'     => (bool) $_ENV['SLIM_LOG_ERROR_DETAILS']
+    ],
+
+    /**
      * Doctrine configuration.
      */
     'doctrine' => [

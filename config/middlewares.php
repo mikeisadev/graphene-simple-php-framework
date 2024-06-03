@@ -1,6 +1,7 @@
 <?php
 
 use Slim\App;
+use App\Config;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Middlewares\SessionMiddleware;
@@ -13,6 +14,7 @@ use App\Middlewares\ValidationExceptionMiddleware;
 
 return function (App $app) {
     $container = $app->getContainer();
+    $config = $container->get(Config::class);
     
     $app->add(MethodOverrideMiddleware::class);
     $app->add(CsrfFieldsMiddleware::class);
@@ -32,8 +34,8 @@ return function (App $app) {
     $app->addBodyParsingMiddleware();
 
     $app->addErrorMiddleware(
-        true, 
-        true, 
-        true
+        $config->get('slim.display_error_details'), 
+        $config->get('slim.log_errors'), 
+        $config->get('slim.log_error_details')
     );
 };
