@@ -1325,3 +1325,14 @@ You can find example in the code. All validation classes are placed inside "app/
 Documentation for this part will come soon.
 
 [Valitron documentation](https://github.com/vlucas/valitron)
+
+# Testing
+**FEATURE AVAILABLE, DOCUMENTATION IS COMING**
+
+This framework comes with PHPUnit to do your testing.
+
+I've already setup a base configuration inside "phpunit.xml" in the root folder.
+
+You also have a tests folder to do all your testing.
+
+For now, read the [PHPUnit documentation](https://phpunit.de/index.html).
