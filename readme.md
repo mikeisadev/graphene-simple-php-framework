@@ -56,11 +56,11 @@ Missing features that I want to develop:
 
 Consider that this documentation is not 100% accurate and complete.
 
-I've written this in a small period of time distributing the work in 5 days.
+I've written this in a small period of time distributing the writing work in about a week.
 
 I'm sorry for this. 
 
-I'll take care of the documentation in the long run.
+I'll take care of the documentation in the long run adding the missing pieces and improving the improvable ones.
 
 For now you can study this documentation and follow the code I've written to ship a pre-built very simple app along with this framework.
 
@@ -1034,6 +1034,10 @@ Now, if you go inside "routes/web.php" you'll see that I've added this method to
 $group->get('/login', [AuthController::class, 'loginView'])->setName('login');
 ```
 
+Add the controller method to the route you're building.
+
+If you look carefully inside the ```AuthController```, I've done the same thing for the ```registerView``` method. Going inside *routes/web.php* I've attached this method to the register route for the get HTTP method.
+
 This is a linear exaple to return views for specific GET routes.
 
 Explore request and response object methods in Slim documentation:
@@ -1047,8 +1051,277 @@ In general, following the documentation of Slim will allow you to better underst
 
 The Doctrine ORM package allows you to add entities (or models) to map the tables of your database.
 
+All the entities are stored inside "app/Entities".
+
+An entity class (or model) will allow you to map a database table with a PHP class.
+
+The class itself will be the table name, the properties will be the table columns and the methods are used to get or set the values in those columns.
+
+To map the table and all the columns you are going to use PHP attributes from the Doctrine ORM package.
+
+Let's say that you've added a table called ``` Products ```.
+
+Let's also say that this table has the following columns: id, title, description, price.
+
+This is how you'd map an entity class that we could call ``` Product.php ```:
+
+```php
+namespace App\Entities;
+
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'products')]
+class Products {
+
+    #[ORM\Id, ORM\Column(options: ['unsigned' => true]), ORM\GeneratedValue]
+    private int $id;
+
+    #[ORM\Column(type: 'string')]
+    private string $title;
+    
+    #[ORM\Column(type: 'string')]
+    private string $description;
+    
+    #[ORM\Column(type: 'int')]
+    private int $price;
+
+    /**
+     * Set methods.
+     */
+    public function setTitle(string $price): void {
+        $this->title = $price;
+    }
+
+    public function setDescription(string $description): void {
+        $this->description = $description;
+    }
+
+    public function setPrice(int $price): void {
+        $this->price = $price;
+    }
+
+    /**
+     * Get methods.
+     */
+    public function getId(): int {
+        return $this->id;
+    }
+
+    public function getTitle(): string {
+        return $this->title;
+    }
+
+    public function getDescription(): string {
+        return $this->description;
+    }
+
+    public function getPrice(): int {
+        return $this->price;
+    }
+
+}
+```
+
+Let's analyze the code step by step.
+
+The first thing to do is to import the ORM Mapping tool from Doctrine:
+
+```php
+use Doctrine\ORM\Mapping as ORM;
+```
+
+We import it as ```ORM```.
+
+From this we can get all the attribute to map the class recreating the *Products* database table.
+
+The second step is to map the class as the database table name:
+
+```php
+#[ORM\Entity]
+#[ORM\Table(name: 'products')]
+class Products {...}
+```
+
+We use ```#[ORM\Entity]``` to tell that this class is an entity. Next, we add ```#[ORM\Table(name: 'products')]``` to target the database table name using the "name" parameter.
+
+Now we have to map each individual database column using class attributes:
+
+```php
+#[ORM\Id, ORM\Column(options: ['unsigned' => true]), ORM\GeneratedValue]
+private int $id;
+
+#[ORM\Column(type: 'string')]
+private string $title;
+    
+#[ORM\Column(type: 'string')]
+private string $description;
+    
+#[ORM\Column(type: 'int')]
+private int $price;
+```
+
+Be sure to set the visibility of the attributes to private.
+
+The ID column must be and integer that is unsigned and autoincremental. In fact, I used these attributes to configure that column:
+
+```php
+#[ORM\Id, ORM\Column(options: ['unsigned' => true]), ORM\GeneratedValue]
+private int $id;
+```
+
+For the *$title* and *$description* properties I used ```ORM\Column(type: 'string')``` to say that these columns will accept string as values. For the *$price* column I used int as *data* type.
+
+In an entity class we must have methods to set data inside database columns. These methods simply accept a parameter that we set to the corresponding class property:
+
+```php
+/**
+ * Set methods.
+ */
+public function setTitle(string $price): void {
+    $this->title = $price;
+}
+
+public function setDescription(string $description): void {
+    $this->description = $description;
+}
+
+public function setPrice(int $price): void {
+    $this->price = $price;
+}
+```
+
+As you can see, we don't have a set method for the id column.
+
+Finally, we have getter methods. They are methods to retrieve the data for each database column:
+```php
+/**
+ * Get methods.
+ */
+public function getId(): int {
+    return $this->id;
+}
+
+public function getTitle(): string {
+    return $this->title;
+}
+
+public function getDescription(): string {
+    return $this->description;
+}
+
+public function getPrice(): int {
+    return $this->price;
+}
+```
+
+Using these methods we can get data from an existing product record in the database.
+
+Read [Doctrine ORM documentation](https://www.doctrine-project.org/projects/doctrine-orm/en/3.2/index.html) for more info.
+
+Now let's see how to create a new ``` Product ``` record.
+
+## Creating a new record with an entity class
+Once you've set up an entity class, you can use it to save a record inside the database table that you've indicated in the ```ORM\Table``` attribute.
+
+But first, you have to have the access to the entity manager object, an object used to connect to the database and to perform the action of saving data.
+
+To do this, you can inject the entity manager object inside the constructor of the class you're working on.
+
+Let's say that you have a ```ProductController.php``` class inside *app/Controllers* folder.
+
+Inside this controller you have a method called ```saveProduct``` in which you use the Product entity to add a new product:
+
+```php
+namespace App\Controllers;
+
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Doctrine\ORM\EntityManagerInterface;
+use App\FormatResponse;
+use App\Entities\Product;
+
+class AuthController {
+
+    // Inject dependencies
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly FormatResponse $formatResponse
+    ) {}
+
+    // Save product controller method.
+    public function saveProduct(Request $request, Response $response): Response {
+        // Get data from the $request object.
+        $data = $request->getParsedBody();
+
+        // Get Products entity class
+        $product = new Product();
+
+        // Use set methods of the product class
+        $product->setTitle( $data['title'] );
+        $product->setDescription( $data['description'] );
+        $product->setPrice( $data['price'] );
+
+        // Save the new product in the database with the entity manager
+        $this->entityManager->persist($product);
+        $this->entityManager->flush();
+        
+        // Return a response.
+        return $this->formatResponse->json([
+            'message' => 'Product saved successfully'
+        ]);
+    }
+
+}
+```
+In steps:
+- you get data from the $request
+- onstantiate the Product entity class
+- use setter methods of the product class and use the data from the $data variable
+- use entity manager methods to add a new product record in product table:
+    - pass the $product object in the persist method
+    - then use the flush method
+- lastly, return a json response.
+
+## Query builder
+** Feature available, documentation is coming **
+
+## Entity manager service
+** Feature available, documentation is coming **
+
 # Handling Storage
 **FEATURE AVAILABLE, DOCUMENTATION IS COMING**
 
+This framework uses Flysystem package of PHP League to manage the filesystem.
+
+If you look up inside "config/config.php" file, look for the "storage" key. You'll see that the files will be stored inside "storage/app" folder.
+
+In fact, I use this option to configure the filesystem inside "config/container/bindings.php" in the ``` Filesystem::class ``` key.
+
+[Flysystem documentation](https://flysystem.thephpleague.com/docs/)
+
 # Sending Emails
 **FEATURE AVAILABLE, DOCUMENTATION IS COMING**
+
+In this framework you can send emails using Symfony Mailer.
+
+I've already set up everything to send emails (using MailHog as host), and you can see an example inside "app\Controllers\AuthControllers.php" in the ```registerUser``` method.
+
+As you can see I use the ```Email()``` object to set up the email itself.
+
+Then I use the injected mailer (see ```MailerInterface``` in the constructor of the AuthController) to send the email.
+
+A better documentation on this will come.
+
+[Symfony mailer documentation](https://symfony.com/doc/current/mailer.html).
+
+# Validation
+**FEATURE AVAILABLE, DOCUMENTATION IS COMING**
+
+The validation is handled with the valitron package.
+
+You can find example in the code. All validation classes are placed inside "app/Validators".
+
+Documentation for this part will come soon.
+
+[Valitron documentation](https://github.com/vlucas/valitron)
