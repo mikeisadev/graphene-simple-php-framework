@@ -4,6 +4,7 @@ use Slim\App;
 use App\Config;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use App\Middlewares\UtilsMiddleware;
 use App\Middlewares\SessionMiddleware;
 use App\Middlewares\CsrfFieldsMiddleware;
 use App\Middlewares\OldFormDataMiddleware;
@@ -15,6 +16,8 @@ use App\Middlewares\ValidationExceptionMiddleware;
 return function (App $app) {
     $container = $app->getContainer();
     $config = $container->get(Config::class);
+
+    $app->add(UtilsMiddleware::class);
     
     $app->add(MethodOverrideMiddleware::class);
     $app->add(CsrfFieldsMiddleware::class);
